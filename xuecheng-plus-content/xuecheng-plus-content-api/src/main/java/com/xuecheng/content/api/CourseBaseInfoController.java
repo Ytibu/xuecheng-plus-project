@@ -29,14 +29,12 @@ public class CourseBaseInfoController {
     @PostMapping("/course/list")
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required=false) QueryCourseParamsDto queryCourseParamsDto) {
 
-
         CourseBase courseBase = new CourseBase();
         courseBase.setName("测试名称");
         courseBase.setCreateDate(LocalDateTime.now());
-        List<CourseBase> courseBases = new ArrayList();
+        List<CourseBase> courseBases = new ArrayList<>();
         courseBases.add(courseBase);
-        PageResult pageResult = new PageResult<CourseBase>(courseBases,10,1,10);
-        return pageResult;
+        return new PageResult<CourseBase>(courseBases,10,1,10);
 
     }
 }
