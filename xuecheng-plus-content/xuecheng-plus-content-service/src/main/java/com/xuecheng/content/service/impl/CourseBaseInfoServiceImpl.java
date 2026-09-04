@@ -41,14 +41,14 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
 
         // TODO 按照课程发布状态查询
 
-        Page<CourseBase> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
+        Long pageSize = pageParams.getPageSize();
+        Long pageNo = pageParams.getPageNo();
+        Page<CourseBase> page = new Page<>(pageNo, pageSize);
 
         Page<CourseBase> pageResult = courseBaseMapper.selectPage(page, queryWrapper);
         List<CourseBase> items = pageResult.getRecords();
         long total = pageResult.getTotal();
-        PageResult<CourseBase> courseBasePageResult = new PageResult<>(items, total, pageParams.getPageNo(), pageParams.getPageSize());
 
-
-        return null;
+        return new PageResult<>(items, total, pageNo, pageSize);
     }
 }
