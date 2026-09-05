@@ -6,7 +6,8 @@
     </properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${PATTERN}"/>
+            <!--<PatternLayout pattern="${PATTERN}"/>-->
+            <PatternLayout disableAnsi="false" pattern="%date{YYYY-MM-dd HH:mm:ss,SSS} %highlight{%level}{FATAL=red bold, ERROR=red bold, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue} [%thread][%file:%line] - %highlight{%msg}{FATAL=red bold, ERROR=red bold, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue}%n%throwable"/>
         </Console>
 
         <RollingFile name="ErrorAppender" fileName="${logdir}/error.log"

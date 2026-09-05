@@ -9,3 +9,8 @@ Content-Type: application/json
 }
 
 <> 2026-09-05T001020.200.json
+
+### 查询课程分类
+GET {{content_host}}/content/course-category/tree-nodes
+
+### 新增课程
