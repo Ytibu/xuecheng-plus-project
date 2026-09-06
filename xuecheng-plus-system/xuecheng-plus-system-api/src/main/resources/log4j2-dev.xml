@@ -6,6 +6,7 @@
     </properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
+            <!--<PatternLayout pattern="${PATTERN}"/>-->
             <PatternLayout disableAnsi="false" pattern="%date{YYYY-MM-dd HH:mm:ss,SSS} %highlight{%level}{FATAL=red bold, ERROR=red bold, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue} [%thread][%file:%line] - %highlight{%msg}{FATAL=red bold, ERROR=red bold, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=blue}%n%throwable"/>
         </Console>
 
@@ -35,11 +36,11 @@
     </Appenders>
     
     <Loggers>
-         <!--过滤掉spring和mybatis的一些无用的debug信息
+         <!--过滤掉spring和mybatis的一些无用的debug信息-->
         <logger name="org.springframework" level="INFO">
         </logger>
         <logger name="org.mybatis" level="INFO">
-        </logger>-->
+        </logger>
         <logger name="cn.itcast.wanxinp2p.consumer.mapper" level="DEBUG">
         </logger>
 
