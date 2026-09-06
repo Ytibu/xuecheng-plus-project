@@ -3,6 +3,7 @@ package com.xuecheng.content.api;
 import com.xuecheng.base.exception.ValidationGroups;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
+import com.xuecheng.base.model.Result;
 import com.xuecheng.content.model.dto.AddCourseDto;
 import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.EditCourseDto;
@@ -27,18 +28,18 @@ public class CourseBaseInfoController {
 
     @ApiOperation("课程查询接口")
     @PostMapping("/course/list")
-    public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required=false) QueryCourseParamsDto queryCourseParamsDto)
+    public Result<PageResult<CourseBase>> list(PageParams pageParams, @RequestBody(required=false) QueryCourseParamsDto queryCourseParamsDto)
     {
         log.warn("要查询课程的课程信息:{}", queryCourseParamsDto);
-        return courseBaseInfoService.QueryCourseBaseList(pageParams, queryCourseParamsDto);
+        return Result.success(courseBaseInfoService.QueryCourseBaseList(pageParams, queryCourseParamsDto));
     }
 
     @ApiOperation("新增课程")
     @PostMapping("/course")
-    public CourseBaseInfoDto createCourseBase(@RequestBody @Validated(ValidationGroups.Insert.class) AddCourseDto addCourseDto)
+    public Result<CourseBaseInfoDto> createCourseBase(@RequestBody @Validated(ValidationGroups.Insert.class) AddCourseDto addCourseDto)
     {
         log.warn("机构新增课程信息:{}", addCourseDto);
-        return courseBaseInfoService.createCourseBase(1232141425L, addCourseDto);
+        return Result.success(courseBaseInfoService.createCourseBase(1232141425L, addCourseDto));
     }
 
 
@@ -49,20 +50,18 @@ public class CourseBaseInfoController {
      */
     @ApiOperation("根据课程id查询课程信息")
     @GetMapping("/course/{courseId}")
-    public CourseBaseInfoDto getCourseBaseInfo(@PathVariable("courseId") Long courseId)
+    public Result<CourseBaseInfoDto> getCourseBaseInfo(@PathVariable("courseId") Long courseId)
     {
         log.warn("根据课程id：{}查询课程信息", courseId);
-        return courseBaseInfoService.getCourseBaseInfo(courseId);
+        return Result.success(courseBaseInfoService.getCourseBaseInfo(courseId));
     }
 
     @ApiOperation("修改课程信息")
     @PutMapping("/course")
-    public CourseBaseInfoDto modifyCourseBaseInfo(@RequestBody @Validated(ValidationGroups.Update.class) EditCourseDto editCourseDto)
+    public Result<CourseBaseInfoDto> modifyCourseBaseInfo(@RequestBody @Validated(ValidationGroups.Update.class) EditCourseDto editCourseDto)
     {
         log.warn("要修改的课程信息:{}", editCourseDto);
-        return courseBaseInfoService.updateCourseBase(1232141425L, editCourseDto);
+        return Result.success(courseBaseInfoService.updateCourseBase(1232141425L, editCourseDto));
     }
-
-//    @ApiOperation("设置课程计划")
 
 }

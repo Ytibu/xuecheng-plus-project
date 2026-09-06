@@ -29,7 +29,6 @@
 
 
 
-
     <resultMap id="treeNodeResultMap" type="com.xuecheng.content.model.dto.TeachplanDto">
         <id column="one_id" property="id"/>
         <result column="one_pname" property="pname"/>
@@ -93,7 +92,7 @@
                m1.id             teachplanMediaId,
                m1.media_id       medianId
         from teachplan one
-                 inner join teachplan two on two.parentid = one.id
+                 left join teachplan two on two.parentid = one.id
                  left join teachplan_media m1 on two.id = m1.teachplan_id
         where one.parentid = 0
           and one.course_id = #{id}

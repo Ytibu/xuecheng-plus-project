@@ -53,8 +53,6 @@ public class CourseCategoryServiceImpl implements CourseCategoryService {
             }
 
         });
-
-        log.info("查询到的课程分类结果为:{}",categoryTreeDtos);
         return categoryTreeDtos;
     }
 }

@@ -1,6 +1,7 @@
 package com.xuecheng.content.api;
 
 
+import com.xuecheng.base.model.Result;
 import com.xuecheng.content.model.dto.CourseCategoryTreeDto;
 import com.xuecheng.content.service.CourseCategoryService;
 import io.swagger.annotations.Api;
@@ -21,9 +22,9 @@ public class CourseCategoryController {
     private CourseCategoryService courseCategoryService;
 
     @GetMapping("/course-category/tree-nodes")
-    public List<CourseCategoryTreeDto> queryTreeNodes()
+    public Result<List<CourseCategoryTreeDto>> queryTreeNodes()
     {
         log.info("前端查询所有课程分类");
-        return courseCategoryService.queryTreeNodes("1");
+        return Result.success(courseCategoryService.queryTreeNodes("1"));
     }
 }
