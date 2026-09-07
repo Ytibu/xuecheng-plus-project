@@ -1,6 +1,5 @@
 package com.xuecheng.system.controller;
 
-import com.xuecheng.base.model.Result;
 import com.xuecheng.system.model.po.Dictionary;
 import com.xuecheng.system.service.DictionaryService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +25,12 @@ public class DictionaryController  {
     private DictionaryService  dictionaryService;
 
     @GetMapping("/dictionary/all")
-    public Result<List<Dictionary>> queryAll() {
-        return Result.success(dictionaryService.queryAll());
+    public List<Dictionary> queryAll() {
+        return dictionaryService.queryAll();
     }
 
     @GetMapping("/dictionary/code/{code}")
-    public Result<Dictionary> getByCode(@PathVariable String code) {
-        return Result.success(dictionaryService.getByCode(code));
+    public Dictionary getByCode(@PathVariable String code) {
+        return dictionaryService.getByCode(code);
     }
 }
