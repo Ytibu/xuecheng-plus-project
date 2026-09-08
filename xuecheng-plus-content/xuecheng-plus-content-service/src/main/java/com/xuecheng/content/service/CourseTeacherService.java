@@ -10,10 +10,10 @@ public interface CourseTeacherService extends IService<CourseTeacher> {
 
     /**
      * 根据课程id查询教师信息集合
-     * @param courseTeacherId 课程Id
+     * @param courseId 课程Id
      * @return 教师集合
      */
-    List<CourseTeacherDto> getCourseTeacher(Long courseTeacherId);
+    List<CourseTeacherDto> getCourseTeacher(Long courseId);
 
     /**
      * 新增教师西悉尼并返回详细信息
@@ -22,6 +22,10 @@ public interface CourseTeacherService extends IService<CourseTeacher> {
      */
     CourseTeacherDto addCourseTeacher(CourseTeacherDto courseTeacherDto);
 
-
+    /**
+     * 删除指定课程下的指定教师
+     * @param courseId 课程id
+     * @param courseTeacherId 唯一的教师id
+     */
     void deleteCourseTeacher(Long courseId, Long courseTeacherId);
 }

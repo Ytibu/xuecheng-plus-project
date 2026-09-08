@@ -20,19 +20,19 @@ public class CourseTeacherController {
     private CourseTeacherService courseTeacherService;
 
     @ApiOperation("查看指定教师的师资信息")
-    @GetMapping("/courseTeacher/list/{courseTeacherId}")
-    public List<CourseTeacherDto> getCourseTeacher(@PathVariable Long courseTeacherId)
+    @GetMapping("/courseTeacher/list/{courseId}")
+    public List<CourseTeacherDto> getCourseTeacher(@PathVariable Long courseId)
     {
-        log.info("查询教师信息courseTeacherId:{}", courseTeacherId);
-        return courseTeacherService.getCourseTeacher(courseTeacherId);
+        log.warn("查询教师信息courseTeacherId:{}", courseId);
+        return courseTeacherService.getCourseTeacher(courseId);
     }
 
     @ApiOperation("增加教师信息")
     @PostMapping("/courseTeacher")
-    public void addCourseTeacher(@RequestBody CourseTeacherDto courseTeacherDto)
+    public CourseTeacherDto addCourseTeacher(@RequestBody CourseTeacherDto courseTeacherDto)
     {
         log.warn("新增教师信息courseTeacherDto:{}", courseTeacherDto);
-        courseTeacherService.addCourseTeacher(courseTeacherDto);
+        return courseTeacherService.addCourseTeacher(courseTeacherDto);
     }
 
     @ApiOperation("删除指定课程下的教师信息")

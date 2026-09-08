@@ -10,7 +10,7 @@ import com.xuecheng.content.model.dto.SaveTeachplanDto;
 import com.xuecheng.content.model.dto.TeachplanDto;
 import com.xuecheng.content.model.po.Teachplan;
 import com.xuecheng.content.model.po.TeachplanMedia;
-import com.xuecheng.content.service.TeachplanService;
+import com.xuecheng.content.service.TeachPlanService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,8 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan> implements TeachplanService{
+public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan> implements TeachPlanService {
+
     @Autowired
     private TeachplanMapper teachplanMapper;
     @Autowired
@@ -54,7 +55,9 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
             Long parentId = saveTeachplanDto.getParentid();
             Long courseId = saveTeachplanDto.getCourseId();
             LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper = queryWrapper.eq(Teachplan::getCourseId, courseId).eq(Teachplan::getParentid, parentId);
+            queryWrapper = queryWrapper
+                    .eq(Teachplan::getCourseId, courseId)
+                    .eq(Teachplan::getParentid, parentId);
             Integer count = teachplanMapper.selectCount(queryWrapper);
 
             teachplan.setOrderby(count + 1);

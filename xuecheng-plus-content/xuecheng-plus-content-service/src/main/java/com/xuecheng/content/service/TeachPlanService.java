@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 课程计划管理
  */
-public interface TeachplanService extends IService<Teachplan> {
+public interface TeachPlanService extends IService<Teachplan> {
 
     /**
      * 课程计划查询

@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +20,17 @@ public class CourseTeacherServiceImpl extends ServiceImpl<CourseTeacherMapper, C
     @Autowired
     private CourseTeacherMapper courseTeacherMapper;
 
+    /**
+     * 根据课程Id查看课程下所有的教师信息
+     * @param courseId 课程Id
+     * @return 教师信息集合
+     */
     @Override
-    public List<CourseTeacherDto> getCourseTeacher(Long courseTeacherId)
+    public List<CourseTeacherDto> getCourseTeacher(Long courseId)
     {
 
         LambdaQueryWrapper<CourseTeacher> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper = queryWrapper.eq(CourseTeacher::getCourseId, courseTeacherId);
+        queryWrapper = queryWrapper.eq(CourseTeacher::getCourseId, courseId);
         List<CourseTeacher> teachers = courseTeacherMapper.selectList(queryWrapper);
 
         ArrayList<CourseTeacherDto> courseTeacherDtos = new ArrayList<>(teachers.size());
@@ -44,7 +48,6 @@ public class CourseTeacherServiceImpl extends ServiceImpl<CourseTeacherMapper, C
     {
         CourseTeacher courseTeacher = new CourseTeacher();
         BeanUtils.copyProperties(courseTeacherDto, courseTeacher);
-        courseTeacher.setCreateDate(LocalDateTime.now());
         int insert = courseTeacherMapper.insert(courseTeacher);
         if (insert <= 0){
             XuechengPlusException.cast("插入数据失败");
