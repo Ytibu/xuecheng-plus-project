@@ -42,7 +42,6 @@ public class MediaFilesController {
     {
         UploadFileParamsDTO uploadFileParamsDTO = new UploadFileParamsDTO();
         uploadFileParamsDTO.setFilename(fileData.getOriginalFilename());
-        System.out.println(fileData.getOriginalFilename());
         uploadFileParamsDTO.setFileSize(fileData.getSize());
         uploadFileParamsDTO.setFileType("001001");
         File tempFile = File.createTempFile("minio", ".temp");
