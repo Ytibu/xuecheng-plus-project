@@ -1,7 +1,7 @@
 package com.xuecheng.media.api;
 
 import com.xuecheng.media.model.dto.UploadFileParamsDTO;
-import com.xuecheng.media.model.vo.RestResponse;
+import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.service.MediaFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

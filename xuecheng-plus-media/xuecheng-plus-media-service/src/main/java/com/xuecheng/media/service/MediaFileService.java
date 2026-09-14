@@ -6,9 +6,9 @@ import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDTO;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
-import com.xuecheng.media.model.vo.RestResponse;
+import com.xuecheng.base.model.RestResponse;
 
-import java.util.List;
+import java.io.File;
 
 /**
  * @description 媒资文件管理业务类
@@ -25,7 +25,7 @@ public interface MediaFileService {
      * @return com.xuecheng.base.model.PageResult<com.xuecheng.media.model.po.MediaFiles>
      * @author Mr.M
      */
-    public PageResult<MediaFiles> queryMediaFiles(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto);
+    PageResult<MediaFiles> queryMediaFiles(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto);
 
     /**
      * 文件上传
@@ -62,5 +62,31 @@ public interface MediaFileService {
      */
     RestResponse uploadChunk(String md5Hex, int chunkIndex, String loadChunkFilePath);
 
-    public RestResponse mergeChunks(Long companyId, String fileMd5, int chunkIndex, UploadFileParamsDTO uploadFileParamsDTO);
+    /**
+     * 合并
+     * @param companyId 机构ID
+     * @param fileMd5 文件MD5
+     * @param chunkIndex 索引
+     * @param uploadFileParamsDTO 上传文件信息
+     * @return 结果
+     */
+    RestResponse mergeChunks(Long companyId, String fileMd5, int chunkIndex, UploadFileParamsDTO uploadFileParamsDTO);
+
+    /**
+     * 将minio中的文件下载下来
+     * @param bucket 文件桶
+     * @param objectName 文件对象
+     * @return 下载的文件
+     */
+    File downloadFileFromMinIO(String bucket, String objectName);
+
+    /**
+     * 将文件上传到minio
+     * @param localFilePath 本地文件地址
+     * @param mimeType 文件类型
+     * @param bucket 文件桶
+     * @param objectName 文件对象
+     * @return 是否成功
+     */
+    boolean addMediaFilesToMinIO(String localFilePath,String mimeType,String bucket, String objectName);
 }
