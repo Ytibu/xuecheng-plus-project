@@ -5,6 +5,6 @@
     <title>Hello World!</title>
 </head>
 <body>
-Hello ${name}!
+Hello ${model}!
 </body>
 </html>

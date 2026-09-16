@@ -9,7 +9,6 @@ import com.xuecheng.media.model.po.MediaFiles;
 import com.xuecheng.media.service.MediaFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import jdk.internal.org.jline.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +40,6 @@ public class MediaFilesController {
     @RequestMapping(value = "/upload/coursefile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UploadFileResultDto upload(@RequestPart("filedata") MultipartFile fileData) throws IOException
     {
-        Log.debug("上传文件");
         UploadFileParamsDTO uploadFileParamsDTO = new UploadFileParamsDTO();
         uploadFileParamsDTO.setFilename(fileData.getOriginalFilename());
         uploadFileParamsDTO.setFileSize(fileData.getSize());

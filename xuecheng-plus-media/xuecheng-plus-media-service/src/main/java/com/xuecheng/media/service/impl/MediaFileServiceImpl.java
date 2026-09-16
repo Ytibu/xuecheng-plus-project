@@ -97,6 +97,11 @@ public class MediaFileServiceImpl implements MediaFileService {
         return false;
     }
 
+    @Override
+    public MediaFiles getFileById(String mediaLd) {
+        return mediaFilesMapper.selectById(mediaLd);
+    }
+
     /**
      * 将文件添加到文件表
      * @param companyId 机构ID

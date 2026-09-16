@@ -89,4 +89,6 @@ public interface MediaFileService {
      * @return 是否成功
      */
     boolean addMediaFilesToMinIO(String localFilePath,String mimeType,String bucket, String objectName);
+
+    MediaFiles getFileById(String mediaLd);
 }
