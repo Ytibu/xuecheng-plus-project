@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xuecheng.base.exception.XuechengPlusException;
 import com.xuecheng.content.mapper.TeachplanMapper;
 import com.xuecheng.content.mapper.TeachplanMediaMapper;
+import com.xuecheng.content.model.dto.BindTeachplanMediaDto;
 import com.xuecheng.content.model.dto.SaveTeachplanDto;
 import com.xuecheng.content.model.dto.TeachplanDto;
 import com.xuecheng.content.model.po.Teachplan;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -149,6 +151,39 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
 
         // 3. 与下一条记录交换排序值
         exchangeOrderby(current, next);
+    }
+
+    /**
+     * 媒资文件关联课程计划
+     * @param bindTeachplanMediaDto 教学计划与媒资绑定数据
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public TeachplanMedia associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto)
+    {
+        Long teachPlanId = bindTeachplanMediaDto.getTeachplanId();
+        Teachplan teachplan = teachplanMapper.selectById(teachPlanId);
+        if(teachplan==null){
+            XuechengPlusException.cast("教学计划不存在");
+        }
+        Integer grade = teachplan.getGrade();
+        if(grade!=2){
+            XuechengPlusException.cast("只允许第二级教学计划绑定媒资文件");
+        }
+        //课程id
+        Long courseId = teachplan.getCourseId();
+
+        int delete = teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>()
+                .eq(TeachplanMedia::getTeachplanId, teachPlanId)
+        );
+
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        BeanUtils.copyProperties(bindTeachplanMediaDto, teachplanMedia);
+        teachplanMedia.setCourseId(courseId);
+        teachplanMedia.setCreateDate(LocalDateTime.now());
+        teachplanMedia.setMediaFilename(bindTeachplanMediaDto.getFileName());
+        teachplanMediaMapper.insert(teachplanMedia);
+        return teachplanMedia;
     }
 
     /**

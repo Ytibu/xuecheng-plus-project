@@ -46,57 +46,55 @@ public class VideoTask {
         ExecutorService executorService = Executors.newFixedThreadPool(size);
 
         CountDownLatch countDownLatch = new CountDownLatch(size);
-        mediaProcesses.forEach(mediaProcess -> {
-            executorService.execute(() -> {
-                try{
-                    Long taskId = mediaProcess.getId();
-                    boolean isOk = mediaFileProcessService.startTask(taskId);
-                    if (!isOk) {
-                        log.debug("抢占任务失败，任务Id:{}", taskId);
-                        return;
-                    }
-
-                    String fileId = mediaProcess.getFileId();
-                    String bucket = mediaProcess.getBucket();
-                    String objectName = mediaProcess.getFilePath();
-                    File file = mediaFileService.downloadFileFromMinIO(bucket, objectName);
-                    if (file == null) {
-                        log.error("下载视频错误，任务id{}，bucket:{}，objectName:{}", taskId, bucket, objectName);
-                        mediaFileProcessService.saveProcessFinishStatus(taskId, "3", fileId, null, "下载视频到本地失败");
-                        return;
-                    }
-
-                    String videoPath = file.getAbsolutePath();
-                    String mp4Name = fileId + ".mp4";
-                    File mp4File;
-                    try {
-                        mp4File = File.createTempFile("minio", ".pm4");
-                    } catch (IOException e) {
-                        log.error("创建临时文件异常：{}", e.getMessage());
-                        mediaFileProcessService.saveProcessFinishStatus(taskId, "3", fileId, null, "创建临时文件异常");
-                        return;
-                    }
-                    Mp4VideoUtil videoUtil = new Mp4VideoUtil(ffmpegPath, videoPath, mp4Name, mp4File.getAbsolutePath());
-                    String result = videoUtil.generateMp4();
-                    if (!result.equals("success")) {
-                        log.error("视频转码失败：{}, bucket:{}, objectName:{}", result, bucket, objectName);
-                        mediaFileProcessService.saveProcessFinishStatus(taskId, "3", fileId, null, result);
-                        return;
-                    }
-
-                    boolean isOk2 = mediaFileService.addMediaFilesToMinIO(mp4File.getAbsolutePath(), "video/mp4", bucket, objectName);
-                    if (!isOk2) {
-                        log.error("上传mp4到minio失败，taskId:{}, bucket:{}, objectName:{}", taskId, bucket, objectName);
-                        return;
-                    }
-
-                    String url = getFilePath(fileId, ".mp4");
-                    mediaFileProcessService.saveProcessFinishStatus(taskId, "2", fileId, url, "执行成功");
-                }finally {
-                    countDownLatch.countDown();
+        mediaProcesses.forEach(mediaProcess -> executorService.execute(() -> {
+            try{
+                Long taskId = mediaProcess.getId();
+                boolean isOk = mediaFileProcessService.startTask(taskId);
+                if (!isOk) {
+                    log.debug("抢占任务失败，任务Id:{}", taskId);
+                    return;
                 }
-            });
-        });
+
+                String fileId = mediaProcess.getFileId();
+                String bucket = mediaProcess.getBucket();
+                String objectName = mediaProcess.getFilePath();
+                File file = mediaFileService.downloadFileFromMinIO(bucket, objectName);
+                if (file == null) {
+                    log.error("下载视频错误，任务id{}，bucket:{}，objectName:{}", taskId, bucket, objectName);
+                    mediaFileProcessService.saveProcessFinishStatus(taskId, "3", fileId, null, "下载视频到本地失败");
+                    return;
+                }
+
+                String videoPath = file.getAbsolutePath();
+                String mp4Name = fileId + ".mp4";
+                File mp4File;
+                try {
+                    mp4File = File.createTempFile("minio", ".pm4");
+                } catch (IOException e) {
+                    log.error("创建临时文件异常：{}", e.getMessage());
+                    mediaFileProcessService.saveProcessFinishStatus(taskId, "3", fileId, null, "创建临时文件异常");
+                    return;
+                }
+                Mp4VideoUtil videoUtil = new Mp4VideoUtil(ffmpegPath, videoPath, mp4Name, mp4File.getAbsolutePath());
+                String result = videoUtil.generateMp4();
+                if (!result.equals("success")) {
+                    log.error("视频转码失败：{}, bucket:{}, objectName:{}", result, bucket, objectName);
+                    mediaFileProcessService.saveProcessFinishStatus(taskId, "3", fileId, null, result);
+                    return;
+                }
+
+                boolean isOk2 = mediaFileService.addMediaFilesToMinIO(mp4File.getAbsolutePath(), "video/mp4", bucket, objectName);
+                if (!isOk2) {
+                    log.error("上传mp4到minio失败，taskId:{}, bucket:{}, objectName:{}", taskId, bucket, objectName);
+                    return;
+                }
+
+                String url = getFilePath(fileId, ".mp4");
+                mediaFileProcessService.saveProcessFinishStatus(taskId, "2", fileId, url, "执行成功");
+            }finally {
+                countDownLatch.countDown();
+            }
+        }));
 
         countDownLatch.await(30, TimeUnit.MINUTES);
     }
