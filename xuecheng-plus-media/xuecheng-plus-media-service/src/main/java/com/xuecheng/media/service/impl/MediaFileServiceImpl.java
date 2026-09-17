@@ -38,12 +38,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * @description TODO
- * @author Mr.M
- * @date 2022/9/10 8:58
- * @version 1.0
- */
 
 @Slf4j
 @Service
@@ -165,9 +159,6 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
 
-
-
-
     @Override
     public PageResult<MediaFiles> queryMediaFiles(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto)
     {
@@ -263,7 +254,7 @@ public class MediaFileServiceImpl implements MediaFileService {
                 return RestResponse.success(true);
             }
         }catch (Exception e){
-            log.error("分块检查异常{}", e.getMessage());
+
         }
 
         return RestResponse.success(false);

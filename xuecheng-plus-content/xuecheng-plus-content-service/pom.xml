@@ -56,6 +56,19 @@
            <groupId>com.alibaba.cloud</groupId>
            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
        </dependency>
+
+       <!--SDK 工具消息包-->
+       <dependency>
+           <groupId>com.xuecheng</groupId>
+           <artifactId>xuecheng-plus-message-sdk</artifactId>
+           <version>0.0.1-SNAPSHOT</version>
+       </dependency>
+
+       <!-- xxl-job -->
+       <dependency>
+           <groupId>com.xuxueli</groupId>
+           <artifactId>xxl-job-core</artifactId>
+       </dependency>
    </dependencies>
 
 </project>

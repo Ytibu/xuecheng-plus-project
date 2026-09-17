@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,17 +47,43 @@ public class CourseTeacherServiceImpl extends ServiceImpl<CourseTeacherMapper, C
     @Override
     public CourseTeacherDto addCourseTeacher(CourseTeacherDto courseTeacherDto)
     {
+        // 1. 有 id → 更新
+        if (courseTeacherDto.getId() != null) {
+            CourseTeacher exist = courseTeacherMapper.selectById(courseTeacherDto.getId());
+            if (exist != null) {
+                courseTeacherMapper.updateById(courseTeacherDto);
+                CourseTeacher teacher = courseTeacherMapper.selectById(courseTeacherDto.getId());
+                CourseTeacherDto resultDto = new CourseTeacherDto();
+                BeanUtils.copyProperties(teacher, resultDto);
+                return resultDto;   // ← 必须 return
+            }
+            // id 传了但库里没有，落到下面走新增
+        }
+
+        // 2. 无 id → 先按唯一索引查重，再决定 insert 还是 update
+        LambdaQueryWrapper<CourseTeacher> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CourseTeacher::getCourseId, courseTeacherDto.getCourseId())
+                .eq(CourseTeacher::getTeacherName, courseTeacherDto.getTeacherName());
+        CourseTeacher exist = courseTeacherMapper.selectOne(wrapper);
+
         CourseTeacher courseTeacher = new CourseTeacher();
         BeanUtils.copyProperties(courseTeacherDto, courseTeacher);
-        int insert = courseTeacherMapper.insert(courseTeacher);
-        if (insert <= 0){
-            XuechengPlusException.cast("插入数据失败");
-        }
-        CourseTeacher teacher = courseTeacherMapper.selectById(courseTeacher.getId());
 
+        if (exist != null) {
+            // 已存在同课程同教师，改为更新
+            courseTeacher.setId(exist.getId());
+            courseTeacherMapper.updateById(courseTeacher);
+        } else {
+            courseTeacher.setCreateDate(LocalDateTime.now());
+            int insert = courseTeacherMapper.insert(courseTeacher);
+            if (insert <= 0) {
+                XuechengPlusException.cast("插入数据失败");
+            }
+        }
+
+        CourseTeacher teacher = courseTeacherMapper.selectById(courseTeacher.getId());
         CourseTeacherDto resultDto = new CourseTeacherDto();
         BeanUtils.copyProperties(teacher, resultDto);
-
         return resultDto;
     }
 

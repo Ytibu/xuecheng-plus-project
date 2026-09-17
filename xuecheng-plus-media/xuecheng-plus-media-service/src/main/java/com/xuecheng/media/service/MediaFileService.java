@@ -91,4 +91,7 @@ public interface MediaFileService {
     boolean addMediaFilesToMinIO(String localFilePath,String mimeType,String bucket, String objectName);
 
     MediaFiles getFileById(String mediaLd);
+
+    MediaFiles addMediaFilesToDb(Long companyId, String fileMd5,
+                                 UploadFileParamsDTO uploadFileParamsDto, String bucket, String objectName);
 }
