@@ -3,7 +3,7 @@ package com.xuecheng.content.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xuecheng.base.exception.XuechengPlusException;
+import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.content.mapper.TeachplanMapper;
 import com.xuecheng.content.mapper.TeachplanMediaMapper;
 import com.xuecheng.content.model.dto.BindTeachplanMediaDto;
@@ -88,7 +88,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
             queryWrapper = queryWrapper.eq(Teachplan::getParentid, id);
             Integer count = teachplanMapper.selectCount(queryWrapper);
             if(count > 0){
-                XuechengPlusException.cast("该章存在节点内容，禁止直接删除");
+                XueChengPlusException.cast("该章存在节点内容，禁止直接删除");
             }
         }
 
@@ -108,7 +108,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
         // 1. 查询并校验当前记录
         Teachplan current = getById(id);
         if (current == null || current.getStatus() == null || current.getStatus() != 1) {
-            XuechengPlusException.cast("记录不存在或已删除");
+            XueChengPlusException.cast("记录不存在或已删除");
         }
 
         // 2. 查找同父级下相邻的上一条记录
@@ -120,7 +120,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
                 .orderByDesc(Teachplan::getOrderby)
                 .last("LIMIT 1"));
         if (prev == null) {
-            XuechengPlusException.cast("已经是第一条，无法上移");
+            XueChengPlusException.cast("已经是第一条，无法上移");
         }
 
         // 3. 与上一条记录交换排序值
@@ -134,7 +134,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
         // 1. 查询并校验当前记录
         Teachplan current = getById(id);
         if (current == null || current.getStatus() == null || current.getStatus() != 1) {
-            XuechengPlusException.cast("记录不存在或已删除");
+            XueChengPlusException.cast("记录不存在或已删除");
         }
 
         // 2. 查找同父级下相邻的下一条记录
@@ -146,7 +146,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
                 .orderByAsc(Teachplan::getOrderby)
                 .last("LIMIT 1"));
         if (next == null) {
-            XuechengPlusException.cast("已经是最后一条，无法下移");
+            XueChengPlusException.cast("已经是最后一条，无法下移");
         }
 
         // 3. 与下一条记录交换排序值
@@ -164,11 +164,11 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
         Long teachPlanId = bindTeachplanMediaDto.getTeachplanId();
         Teachplan teachplan = teachplanMapper.selectById(teachPlanId);
         if(teachplan==null){
-            XuechengPlusException.cast("教学计划不存在");
+            XueChengPlusException.cast("教学计划不存在");
         }
         Integer grade = teachplan.getGrade();
         if(grade!=2){
-            XuechengPlusException.cast("只允许第二级教学计划绑定媒资文件");
+            XueChengPlusException.cast("只允许第二级教学计划绑定媒资文件");
         }
         //课程id
         Long courseId = teachplan.getCourseId();
@@ -202,7 +202,7 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
                 .eq(Teachplan::getId, target.getId())
                 .eq(Teachplan::getOrderby, target.getOrderby()));
         if (!updateCurrent || !updateTarget) {
-            XuechengPlusException.cast("操作失败，数据已被他人修改，请刷新后重试");
+            XueChengPlusException.cast("操作失败，数据已被他人修改，请刷新后重试");
         }
     }
 

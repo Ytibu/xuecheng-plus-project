@@ -16,16 +16,16 @@ import java.util.List;
  * 失败一律 throw，由本拦截器统一转成 RestErrorResponse{errMessage} + HTTP 500。
  * 状态码必须是非 2xx：前端 axios 只在错误拦截器里读 error.response.data.errMessage 弹窗，
  * 若返回 200，前端会当成功处理，提示丢失且继续执行后续刷新逻辑。
- * 提示文案在抛出异常的位置设计(如 XuechengPlusException.cast("自定义提示"))。
+ * 提示文案在抛出异常的位置设计(如 XueChengPlusException.cast("自定义提示"))。
  */
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ResponseBody
-    @ExceptionHandler(XuechengPlusException.class)
+    @ExceptionHandler(XueChengPlusException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public RestErrorResponse customException(XuechengPlusException e)
+    public RestErrorResponse customException(XueChengPlusException e)
     {
         log.error("系统已知异常：{}", e.getErrMessage(), e);
 

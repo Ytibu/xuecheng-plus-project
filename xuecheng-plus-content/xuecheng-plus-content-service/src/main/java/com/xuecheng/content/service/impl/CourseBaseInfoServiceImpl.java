@@ -2,7 +2,7 @@ package com.xuecheng.content.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xuecheng.base.exception.XuechengPlusException;
+import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.content.mapper.CourseBaseMapper;
@@ -148,11 +148,11 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         // 根据前端传来的课程的id查询是否存在该课程
         CourseBase courseBase = courseBaseMapper.selectById(courseId);
         if(courseBase == null){
-            XuechengPlusException.cast("课程不存在");
+            XueChengPlusException.cast("课程不存在");
         }
         // 判断该课程的所属结构是否属于本机构
         if(!companyId.equals(courseBase.getCompanyId())){
-            XuechengPlusException.cast("课程不属于本机构");
+            XueChengPlusException.cast("课程不属于本机构");
         }
 
         // 封装课程数据，根据id修改信息
@@ -161,7 +161,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         // 修改数据库信息
         int i = courseBaseMapper.updateById(courseBase);
         if(i <= 0){
-            XuechengPlusException.cast("修改课程失败");
+            XueChengPlusException.cast("修改课程失败");
         }
 
         CourseMarket courseMarket = courseMarketMapper.selectById(courseId);

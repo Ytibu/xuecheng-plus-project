@@ -2,7 +2,9 @@ package com.xuecheng.content.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.xuecheng.base.exception.CommonError;
-import com.xuecheng.base.exception.XuechengPlusException;
+import com.xuecheng.base.exception.XueChengPlusException;
+import com.xuecheng.content.config.MultipartSupportConfig;
+import com.xuecheng.content.feignclient.MediaServiceClient;
 import com.xuecheng.content.mapper.CourseBaseMapper;
 import com.xuecheng.content.mapper.CourseMarketMapper;
 import com.xuecheng.content.mapper.CoursePublishMapper;
@@ -19,15 +21,26 @@ import com.xuecheng.content.service.CoursePublishService;
 import com.xuecheng.content.service.TeachPlanService;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MqMessageService;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -48,6 +61,8 @@ public class CoursePublishServiceImpl implements CoursePublishService {
     private CoursePublishMapper coursePublishMapper;
     @Autowired
     private MqMessageService mqMessageService;
+    @Autowired
+    private MediaServiceClient mediaServiceClient;
 
     @Override
     public CoursePreviewDto getCoursePreviewInfo(Long courseId)
@@ -69,21 +84,21 @@ public class CoursePublishServiceImpl implements CoursePublishService {
     {
         CourseBaseInfoDto courseBaseInfo = courseBaseInfoService.getCourseBaseInfo(courseId);
         if(courseBaseInfo == null){
-            XuechengPlusException.cast("无法发现课程");
+            XueChengPlusException.cast("无法发现课程");
         }
         String auditStatus = courseBaseInfo.getAuditStatus();
         if(auditStatus.equals("202003")){
-            XuechengPlusException.cast("课程已经提交");
+            XueChengPlusException.cast("课程已经提交");
         }
         // TODO 机构校验·companyId
         String pic = courseBaseInfo.getPic();
         if(StringUtils.isEmpty(pic)){
-            XuechengPlusException.cast("上传课程宣传图");
+            XueChengPlusException.cast("上传课程宣传图");
         }
 
         List<TeachplanDto> teachplanDtos = teachPlanService.selectTeachplanTree(courseId);
         if(teachplanDtos == null || teachplanDtos.isEmpty()){
-            XuechengPlusException.cast("缺失课程计划");
+            XueChengPlusException.cast("缺失课程计划");
         }
         CoursePublishPre coursePublishPre = new CoursePublishPre();
         BeanUtils.copyProperties(courseBaseInfo, coursePublishPre);
@@ -118,11 +133,11 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         // 查询课程预发布表
         CoursePublishPre coursePublishPre = coursePublishPreMapper.selectById(courseId);
         if(coursePublishPre == null){
-            XuechengPlusException.cast("课程未经过审核");
+            XueChengPlusException.cast("课程未经过审核");
         }
         String status = coursePublishPre.getStatus();
         if(!status.equals("202004")){
-            XuechengPlusException.cast("课程审核不通过");
+            XueChengPlusException.cast("课程审核不通过");
         }
 
         // 写入课程发布表
@@ -138,10 +153,71 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         // 消息表写入信息
         MqMessage mqMessage = mqMessageService.addMessage("course_publish", String.valueOf(courseId), null, null);
         if(mqMessage == null){
-            XuechengPlusException.cast(CommonError.UNKNOWN_ERROR);
+            XueChengPlusException.cast(CommonError.UNKNOWN_ERROR);
         }
 
         // 删除课程预发布表数据
         coursePublishPreMapper.deleteById(courseId);
+    }
+
+    @Override
+    public File generateCourseHtml(Long courseId)
+    {
+        File htmlFile  = null;
+
+        try {
+            //配置freemarker
+            Configuration configuration = new Configuration(Configuration.getVersion());
+
+            //加载模板
+            //选指定模板路径,classpath下templates下
+            //得到classpath路径
+            String classpath = Objects.requireNonNull(this.getClass().getResource("/")).getPath();
+            configuration.setDirectoryForTemplateLoading(new File(classpath + "/templates/"));
+            //设置字符编码
+            configuration.setDefaultEncoding("utf-8");
+
+            //指定模板文件名称
+            Template template = configuration.getTemplate("course_template.ftl");
+
+            //准备数据
+            CoursePreviewDto coursePreviewInfo = this.getCoursePreviewInfo(courseId);
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("model", coursePreviewInfo);
+
+            //静态化
+            //参数1：模板，参数2：数据模型
+            String content = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
+            //将静态化内容输出到文件中
+            InputStream inputStream = IOUtils.toInputStream(content);
+            //创建静态化文件
+            htmlFile = File.createTempFile("course",".html");
+            log.debug("课程静态化，生成静态文件:{}",htmlFile.getAbsolutePath());
+            //输出流
+            FileOutputStream outputStream = new FileOutputStream(htmlFile);
+            IOUtils.copy(inputStream, outputStream);
+        } catch (Exception e) {
+            log.error("课程静态化异常:{}",e.toString());
+            XueChengPlusException.cast("课程静态化异常");
+        }
+
+        return htmlFile;
+    }
+
+    @Override
+    public void uploadCourseHtml(Long courseId, File file)
+    {
+        try{
+            MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(file);
+            String course = mediaServiceClient.uploadFile(multipartFile, "course/" + courseId + ".html");
+            if (course == null) {
+                log.debug("与那成调用的降级逻辑得到上传的结果为null, 课程Id:{}", courseId);
+                XueChengPlusException.cast("上传静态文件异常");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            XueChengPlusException.cast("上传静态文件过程中存在异常");
+        }
     }
 }

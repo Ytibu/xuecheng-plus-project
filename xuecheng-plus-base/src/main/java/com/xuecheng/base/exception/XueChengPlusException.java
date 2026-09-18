@@ -3,15 +3,15 @@ package com.xuecheng.base.exception;
 import lombok.Getter;
 
 @Getter
-public class XuechengPlusException extends RuntimeException {
+public class XueChengPlusException extends RuntimeException {
 
     private String errMessage;
 
-    public XuechengPlusException() {
+    public XueChengPlusException() {
         super();
     }
 
-    public XuechengPlusException(String errMessage) {
+    public XueChengPlusException(String errMessage) {
         super(errMessage);
         this.errMessage = errMessage;
     }
@@ -21,10 +21,10 @@ public class XuechengPlusException extends RuntimeException {
    }
 
     public static void cast(String message) {
-        throw new XuechengPlusException(message);
+        throw new XueChengPlusException(message);
     }
 
     public static void cast(CommonError error) {
-        throw new XuechengPlusException(error.getErrMessage());
+        throw new XueChengPlusException(error.getErrMessage());
     }
 }

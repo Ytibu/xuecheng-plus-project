@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
-import com.xuecheng.base.exception.XuechengPlusException;
+import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.media.mapper.MediaFilesMapper;
@@ -22,6 +22,7 @@ import io.minio.messages.DeleteObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,7 +87,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         } catch (Exception e) {
             e.printStackTrace();
             log.error("上传文件到minio出错,bucket:{},objectName:{},错误原因： {}",bucket,objectName,e.getMessage(),e);
-            XuechengPlusException.cast("上传文件到文件系统失败");
+            XueChengPlusException.cast("上传文件到文件系统失败");
         }
         return false;
     }
@@ -111,15 +112,15 @@ public class MediaFileServiceImpl implements MediaFileService {
         // 1. 参数校验
         if (companyId == null || companyId <= 0) {
             log.error("公司ID无效: {}", companyId);
-            XuechengPlusException.cast("公司ID无效");
+            XueChengPlusException.cast("公司ID无效");
         }
         if (fileMd5 == null || fileMd5.trim().isEmpty()) {
             log.error("文件MD5为空");
-            XuechengPlusException.cast("文件MD5不能为空");
+            XueChengPlusException.cast("文件MD5不能为空");
         }
         if (uploadFileParamsDto == null) {
             log.error("文件上传参数DTO为空");
-            XuechengPlusException.cast("文件上传参数不能为空");
+            XueChengPlusException.cast("文件上传参数不能为空");
         }
 
         // 2. 从数据库查询文件（使用MD5作为主键）
@@ -146,7 +147,7 @@ public class MediaFileServiceImpl implements MediaFileService {
             int insert = mediaFilesMapper.insert(mediaFiles);
             if (insert <= 0) {
                 log.error("保存文件信息到数据库失败，mediaFiles: {}", mediaFiles);
-                XuechengPlusException.cast("保存文件信息失败");
+                XueChengPlusException.cast("保存文件信息失败");
             }
             // 添加待处理任务
             addWaitingTask(mediaFiles);
@@ -179,12 +180,8 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
-    public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDTO uploadFileParamsDTO, String localFilePath)
+    public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDTO uploadFileParamsDTO, String localFilePath, String objectName)
     {
-        File file = new File(localFilePath);
-        if (!file.exists()) {
-            XuechengPlusException.cast("文件不存在");
-        }
         //文件名称
         String filename = uploadFileParamsDTO.getFilename();
         //文件扩展名
@@ -192,25 +189,28 @@ public class MediaFileServiceImpl implements MediaFileService {
         //文件mimeType
         String mimeType = getMimetype(extension);
         //文件的md5值
-        String fileMd5 = fileMd5(file);
+        String fileMd5 = fileMd5(new File(localFilePath));
         //文件的默认目录
         String defaultFolderPath = getDefaultFolderPath();
         //存储到minio中的对象名(带目录)
-        String objectName = defaultFolderPath + fileMd5 + extension;
+        if(StringUtils.isEmpty(objectName)){
+            objectName = defaultFolderPath + fileMd5 + extension;
+        }
         //将文件上传到minio
         boolean result = addMediaFilesToMinIO(localFilePath, mimeType, bucket_files, objectName);
         if(!result){
-            XuechengPlusException.cast("上传文件失败");
+            XueChengPlusException.cast("上传文件失败");
         }
         //文件大小
-        uploadFileParamsDTO.setFileSize(file.length());
+//        uploadFileParamsDTO.setFileSize(file.length());
         //将文件信息存储到数据库
         // 事务只包住数据库操作，不包住耗时的 MinIO 上传
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        String finalObjectName = objectName;
         MediaFiles mediaFiles = transactionTemplate.execute(status ->
-                addMediaFilesToDb(companyId, fileMd5, uploadFileParamsDTO, bucket_files, objectName));
+                addMediaFilesToDb(companyId, fileMd5, uploadFileParamsDTO, bucket_files, finalObjectName));
         if(mediaFiles == null){
-            XuechengPlusException.cast("文件信息保存失败");
+            XueChengPlusException.cast("文件信息保存失败");
         }
         //准备返回数据
         UploadFileResultDto uploadFileResultDto = new UploadFileResultDto();

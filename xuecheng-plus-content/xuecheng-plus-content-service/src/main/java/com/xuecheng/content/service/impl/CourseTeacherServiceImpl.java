@@ -2,7 +2,7 @@ package com.xuecheng.content.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xuecheng.base.exception.XuechengPlusException;
+import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.content.mapper.CourseTeacherMapper;
 import com.xuecheng.content.model.dto.CourseTeacherDto;
 import com.xuecheng.content.model.po.CourseTeacher;
@@ -77,7 +77,7 @@ public class CourseTeacherServiceImpl extends ServiceImpl<CourseTeacherMapper, C
             courseTeacher.setCreateDate(LocalDateTime.now());
             int insert = courseTeacherMapper.insert(courseTeacher);
             if (insert <= 0) {
-                XuechengPlusException.cast("插入数据失败");
+                XueChengPlusException.cast("插入数据失败");
             }
         }
 
