@@ -46,7 +46,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
      * @return 返回数据
      */
     @Override
-    public PageResult<CourseBase> QueryCourseBaseList(PageParams pageParams, QueryCourseParamsDto courseParamsDto) {
+    public PageResult<CourseBase> QueryCourseBaseList(Long companyId, PageParams pageParams, QueryCourseParamsDto courseParamsDto) {
 
         // 拼装查询条件
         LambdaQueryWrapper<CourseBase> queryWrapper = new LambdaQueryWrapper<>();
@@ -55,6 +55,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         queryWrapper.eq(StringUtils.isNotEmpty(courseParamsDto.getAuditStatus()), CourseBase::getAuditStatus, courseParamsDto.getAuditStatus());
 
         // TODO 按照课程发布状态查询（业务上不确定，先按照已发布课程查询）
+        queryWrapper.eq(CourseBase::getCompanyId, companyId);
 
         Long pageSize = pageParams.getPageSize();
         Long pageNo = pageParams.getPageNo();

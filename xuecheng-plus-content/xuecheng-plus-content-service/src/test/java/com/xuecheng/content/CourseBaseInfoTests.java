@@ -29,7 +29,7 @@ public class CourseBaseInfoTests {
         pageParams.setPageNo(1L);
         pageParams.setPageSize(10L);
 
-        PageResult<CourseBase> courseBasePageResult = courseBaseInfoService.QueryCourseBaseList(pageParams, courseParamsDto);
+        PageResult<CourseBase> courseBasePageResult = courseBaseInfoService.QueryCourseBaseList(null, pageParams, courseParamsDto);
 
         System.out.println(courseBasePageResult);
     }

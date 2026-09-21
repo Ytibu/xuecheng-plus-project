@@ -11,12 +11,6 @@ import java.util.List;
 
 /**
  * 全局异常拦截器 —— 后端“错误返回”的唯一出口
- *
- * 前后端约定：成功时 controller 直接返回裸业务对象，不加响应壳；
- * 失败一律 throw，由本拦截器统一转成 RestErrorResponse{errMessage} + HTTP 500。
- * 状态码必须是非 2xx：前端 axios 只在错误拦截器里读 error.response.data.errMessage 弹窗，
- * 若返回 200，前端会当成功处理，提示丢失且继续执行后续刷新逻辑。
- * 提示文案在抛出异常的位置设计(如 XueChengPlusException.cast("自定义提示"))。
  */
 @Slf4j
 @ControllerAdvice
@@ -55,6 +49,10 @@ public class GlobalExceptionHandler {
     public RestErrorResponse exception(Exception e)
     {
         log.error("系统未知异常：{}", e.getMessage(), e);
+
+        if(e.getMessage().equals("不允许访问")){
+            return new RestErrorResponse("没有此功能操作的权限");
+        }
 
         return new RestErrorResponse(CommonError.UNKNOWN_ERROR.getErrMessage());
     }

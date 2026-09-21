@@ -3,6 +3,7 @@ package com.xuecheng.content.api;
 import com.alibaba.fastjson.JSON;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.Serializable;
@@ -14,11 +15,17 @@ public class SecurityUtil {
     public static XcUser getUser()
     {
         try {
-            Object principalObj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(principalObj instanceof XcUser){
-                String principalObjString = principalObj.toString();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null) {
+                return null;
+            }
+            Object principalObj = authentication.getPrincipal();
+            //auth服务签发令牌时将用户信息JSON放在username中，资源服务解码后principal即为该JSON字符串
+            String principalObjString = String.valueOf(principalObj);
+            if (principalObjString.startsWith("{")) {
                 return JSON.parseObject(principalObjString, XcUser.class);
             }
+            log.error("当前principal不是用户信息JSON:{}", principalObjString);
         }catch (Exception e){
             log.error("获取当前登录用户信息失败:{}", e.getMessage());
             e.printStackTrace();
