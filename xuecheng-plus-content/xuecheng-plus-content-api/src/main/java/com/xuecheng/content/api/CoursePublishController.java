@@ -55,4 +55,13 @@ public class CoursePublishController {
         log.warn("发布课程courseId: {}", courseId);
         coursePublishService.publish(1232141425L, courseId);
     }
+
+    @ApiOperation("查询课程发布信息")
+    @ResponseBody
+    @PostMapping ("/r/coursepublish/{courseId}")
+    public void getCoursePublish(@PathVariable("courseId") Long courseId)
+    {
+        log.warn("查询课程发布信息courseId: {}", courseId);
+        coursePublishService.getCoursePublish(courseId);
+    }
 }

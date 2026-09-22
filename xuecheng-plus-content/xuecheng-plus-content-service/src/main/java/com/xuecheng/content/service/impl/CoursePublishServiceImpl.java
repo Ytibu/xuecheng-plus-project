@@ -161,6 +161,12 @@ public class CoursePublishServiceImpl implements CoursePublishService {
     }
 
     @Override
+    public CoursePublish getCoursePublish(Long courseId)
+    {
+        return coursePublishMapper.selectById(courseId);
+    }
+
+    @Override
     public File generateCourseHtml(Long courseId)
     {
         File htmlFile  = null;

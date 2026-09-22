@@ -1,6 +1,7 @@
 package com.xuecheng.content.service;
 
 import com.xuecheng.content.model.dto.CoursePreviewDto;
+import com.xuecheng.content.model.po.CoursePublish;
 
 import java.io.File;
 
@@ -26,6 +27,13 @@ public interface CoursePublishService {
      * @param courseId 课程Id
      */
     void publish(Long companyId, Long courseId);
+
+    /**
+     * 查询课程发布信息
+     * @param courseId 课程Id
+     * @return 课程发布信息
+     */
+    CoursePublish getCoursePublish(Long courseId);
 
     /**
      * 生成课程静态页面
