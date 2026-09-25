@@ -2,6 +2,7 @@ package com.xuecheng.content.api;
 
 
 import com.xuecheng.content.model.dto.CoursePreviewDto;
+import com.xuecheng.content.model.po.CoursePublish;
 import com.xuecheng.content.service.CoursePublishService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -58,10 +59,10 @@ public class CoursePublishController {
 
     @ApiOperation("查询课程发布信息")
     @ResponseBody
-    @PostMapping ("/r/coursepublish/{courseId}")
-    public void getCoursePublish(@PathVariable("courseId") Long courseId)
+    @GetMapping ("/r/coursepublish/{courseId}")
+    public CoursePublish getCoursePublish(@PathVariable("courseId") Long courseId)
     {
         log.warn("查询课程发布信息courseId: {}", courseId);
-        coursePublishService.getCoursePublish(courseId);
+        return coursePublishService.getCoursePublish(courseId);
     }
 }

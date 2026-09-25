@@ -38,7 +38,7 @@ public class PayTestController {
         // alipayRequest.setReturnUrl("http://domain.com/CallBack/return_url.jsp");
         // alipayRequest.setNotifyUrl("http://domain.com/CallBack/notify_url.jsp");//在公共参数中设置回跳和通知地址
         alipayRequest.setBizContent("{" +
-                "    \"out_trade_no\":\"20150320010101002\"," +
+                "    \"out_trade_no\":\"301503200101010012\"," +
                 "    \"total_amount\":88.88," +
                 "    \"subject\":\"Iphone6 16G\"," +
                 "    \"product_code\":\"QUICK_WAP_WAY\"" +
