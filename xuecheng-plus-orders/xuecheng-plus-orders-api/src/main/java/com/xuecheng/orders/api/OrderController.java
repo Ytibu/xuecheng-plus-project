@@ -1,13 +1,14 @@
 package com.xuecheng.orders.api;
 
-import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.orders.config.AlipayConfig;
 import com.xuecheng.orders.model.dto.AddOrderDto;
 import com.xuecheng.orders.model.dto.PayRecordDto;
+import com.xuecheng.orders.model.dto.PayStatusDto;
 import com.xuecheng.orders.model.po.XcPayRecord;
 import com.xuecheng.orders.service.OrderService;
 import com.xuecheng.orders.util.SecurityUtil;
@@ -22,8 +23,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 @Slf4j
 @Api(value = "订单支付接口", tags = "订单支付接口")
@@ -72,7 +77,7 @@ public class OrderController {
 
         AlipayTradeWapPayRequest alipayRequest = new AlipayTradeWapPayRequest();
         // alipayRequest.setReturnUrl("http://domain.com/CallBack/return_url.jsp");
-//         alipayRequest.setNotifyUrl("http://tjxt-user-t.item.net/xuecheng/orders/paynotify");//在公共参数中设置回跳和通知地址
+         alipayRequest.setNotifyUrl("http://762976b8.r9.cpolar.cn/api/orders/paynotify");//在公共参数中设置回跳和通知地址
         alipayRequest.setBizContent("{" +
                 "    \"out_trade_no\":\"" + payNo + "\"," +
                 "    \"total_amount\":" + record.getTotalPrice() + "," +
@@ -91,6 +96,42 @@ public class OrderController {
     public PayRecordDto payresult(String payNo)
     {
         return orderService.queryPayResult(payNo);
+    }
+
+    @PostMapping("/paynotify")
+    public void paynotify(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception {
+        Map<String, String> params = new HashMap<>();
+        Map<String, String[]> parameterMap = httpRequest.getParameterMap();
+        for (String name : parameterMap.keySet()) {
+            String[] values = (String[]) parameterMap.get(name);
+            String valueStr = "";
+            for (int i = 0; i < values.length; i++) {
+                valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
+            }
+            params.put(name, valueStr);
+        }
+
+        boolean verify = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC_KEY, AlipayConfig.CHARSET, "RSA2");
+        if(verify){
+            String outTradeNo = new String(httpRequest.getParameter("out_trade_no").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            String tradeNo = new String(httpRequest.getParameter("trade_no").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            String tradeStatus = new String(httpRequest.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            String totalMount = new String(httpRequest.getParameter("total_mount").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            if (tradeStatus.equals("TRADE_SUCCESS")) {
+                System.out.println(tradeStatus);
+                PayStatusDto payStatusDto = new PayStatusDto();
+                payStatusDto.setTrade_status(tradeStatus);
+                payStatusDto.setTrade_no(tradeNo);
+                payStatusDto.setOut_trade_no(outTradeNo);
+                payStatusDto.setTotal_amount(totalMount);
+                payStatusDto.setApp_id(APP_ID);
+                orderService.saveAliPayStatus(payStatusDto);
+            }
+
+            httpResponse.getWriter().write("success");
+        }else{
+            httpResponse.getWriter().write("fail");
+        }
     }
 
 }
