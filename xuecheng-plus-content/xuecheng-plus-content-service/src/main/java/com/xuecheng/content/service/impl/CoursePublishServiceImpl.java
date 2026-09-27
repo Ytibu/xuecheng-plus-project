@@ -226,4 +226,24 @@ public class CoursePublishServiceImpl implements CoursePublishService {
             XueChengPlusException.cast("上传静态文件过程中存在异常");
         }
     }
+
+    @Override
+    public CoursePreviewDto getCourseInfo(Long courseId) {
+        //查询课程发布信息
+        CoursePublish coursePublish = this.getCoursePublish(courseId);
+        if (coursePublish == null) {
+            return new CoursePreviewDto();
+        }
+
+        //课程基本信息
+        CourseBaseInfoDto courseBase = new CourseBaseInfoDto();
+        BeanUtils.copyProperties(coursePublish, courseBase);
+        //课程计划
+        List<TeachplanDto> teachPlans = JSON.parseArray(coursePublish.getTeachplan(), TeachplanDto.class);
+        CoursePreviewDto coursePreviewInfo = new CoursePreviewDto();
+        coursePreviewInfo.setCourseBase(courseBase);
+        coursePreviewInfo.setTeachplans(teachPlans);
+        return coursePreviewInfo;
+
+    }
 }

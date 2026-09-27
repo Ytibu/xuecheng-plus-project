@@ -1,7 +1,6 @@
 package com.xuecheng.media.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
 import com.xuecheng.base.exception.XueChengPlusException;
@@ -167,16 +166,10 @@ public class MediaFileServiceImpl implements MediaFileService {
         //构建查询条件对象
         LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
 
-        //分页对象
-        Page<MediaFiles> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
-        // 查询数据内容获得结果
-        Page<MediaFiles> pageResult = mediaFilesMapper.selectPage(page, queryWrapper);
-        // 获取数据列表
-        List<MediaFiles> list = pageResult.getRecords();
-        // 获取数据总数
-        long total = pageResult.getTotal();
-        // 构建结果集
-        return new PageResult<>(list, total, pageParams.getPageNo(), pageParams.getPageSize());
+        //测试阶段：不分页，一次性返回全部媒资供前端选择
+        List<MediaFiles> list = mediaFilesMapper.selectList(queryWrapper);
+        // 构建结果集：总记录数与每页记录数都按实际返回条数填充，保证前端分页组件只显示一页
+        return new PageResult<>(list, list.size(), 1, list.size());
     }
 
     @Override

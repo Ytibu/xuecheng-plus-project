@@ -1,11 +1,15 @@
 package com.xuecheng.content.api;
 
 
+import com.alibaba.fastjson.JSON;
+import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.CoursePreviewDto;
+import com.xuecheng.content.model.dto.TeachplanDto;
 import com.xuecheng.content.model.po.CoursePublish;
 import com.xuecheng.content.service.CoursePublishService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
+
+/**
+ * 课程发布
+ */
 @Slf4j
 @Controller
 public class CoursePublishController {
@@ -57,12 +67,23 @@ public class CoursePublishController {
         coursePublishService.publish(1232141425L, courseId);
     }
 
+    // 审核人员进行课程审核，不需要权限等校验
     @ApiOperation("查询课程发布信息")
     @ResponseBody
     @GetMapping ("/r/coursepublish/{courseId}")
-    public CoursePublish getCoursePublish(@PathVariable("courseId") Long courseId)
+    public CoursePublish getCoursePublishInfo(@PathVariable("courseId") Long courseId)
     {
         log.warn("查询课程发布信息courseId: {}", courseId);
         return coursePublishService.getCoursePublish(courseId);
+    }
+
+    // 用户获取课程从而学习课程，要进行权限等审核
+    @ApiOperation("用户获取课程信息")
+    @ResponseBody
+    @GetMapping("/course/whole/{courseId}")
+    public CoursePreviewDto getCoursePublish(@PathVariable("courseId") Long courseId)
+    {
+        log.warn("获取课程发布信息courseId: {}", courseId);
+        return coursePublishService.getCourseInfo(courseId);
     }
 }

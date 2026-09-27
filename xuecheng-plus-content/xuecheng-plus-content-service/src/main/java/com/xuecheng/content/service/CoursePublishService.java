@@ -48,4 +48,7 @@ public interface CoursePublishService {
      * @param file 课程文件
      */
     void  uploadCourseHtml(Long courseId,File file);
+
+
+    CoursePreviewDto getCourseInfo(Long courseId);
 }
