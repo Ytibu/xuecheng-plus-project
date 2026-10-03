@@ -158,6 +158,53 @@ public class MediaFileServiceImpl implements MediaFileService {
         return mediaFiles;
     }
 
+    @Override
+    public RestResponse deleteMediaFile(String mediaFileId) {
+        // 1. 查询媒资文件，文件不存在直接返回
+        MediaFiles mediaFiles = mediaFilesMapper.selectById(mediaFileId);
+        if (mediaFiles == null) {
+            log.error("媒资文件不存在，mediaFileId:{}", mediaFileId);
+            return RestResponse.validfail(false, "文件不存在");
+        }
+        // 2. 先删除文件系统中的文件，删除失败时数据库记录保持不动，用户可重试，避免出现"记录还在、文件已丢"的脏数据
+        boolean removed = removeFileFromMinIO(mediaFiles.getBucket(), mediaFiles.getFilePath());
+        if (!removed) {
+            return RestResponse.validfail(false, "删除文件失败");
+        }
+        // 3. 删除视频的待处理任务，避免定时任务重复处理已删除的文件
+        mediaProcessMapper.delete(new LambdaQueryWrapper<MediaProcess>()
+                .eq(MediaProcess::getFileId, mediaFileId));
+        // 4. 删除数据库中的媒资文件记录
+        int delete = mediaFilesMapper.deleteById(mediaFileId);
+        if (delete <= 0) {
+            log.error("删除媒资文件记录失败，mediaFileId:{}", mediaFileId);
+            return RestResponse.validfail(false, "删除文件记录失败");
+        }
+        log.debug("删除媒资文件成功，mediaFileId:{}", mediaFileId);
+        return RestResponse.success(true);
+    }
+
+    /**
+     * 删除文件系统中的文件(MinIO)
+     * @param bucket 文件桶
+     * @param objectName 文件对象
+     * @return 是否成功
+     */
+    private boolean removeFileFromMinIO(String bucket, String objectName)
+    {
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(objectName)
+                    .build());
+            log.debug("删除文件系统中的文件成功,bucket:{},objectName:{}", bucket, objectName);
+            return true;
+        } catch (Exception e) {
+            log.error("删除文件系统中的文件出错,bucket:{},objectName:{},错误原因：{}", bucket, objectName, e.getMessage(), e);
+            return false;
+        }
+    }
+
 
     @Override
     public PageResult<MediaFiles> queryMediaFiles(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto)

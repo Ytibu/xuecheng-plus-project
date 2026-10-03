@@ -30,15 +30,16 @@ public class PasswordAuthServiceImpl implements AuthService {
         // 确认账号存在
         String userName = authParamsDto.getUsername();
 
-        String checkCode = authParamsDto.getCheckcode();
-        String checkCodeKey = authParamsDto.getCheckcodekey();
-        if(StringUtils.isEmpty(checkCode) || StringUtils.isEmpty(checkCodeKey)){
-            throw new RuntimeException("请输入验证码");
-        }
-        Boolean verify = checkCodeClient.verify(checkCodeKey, checkCode);
-        if (verify == null || !verify){
-            throw new RuntimeException("验证码输入错误");
-        }
+        // TODO @xuecheng-plus-checkcode 临时取消图形验证码校验，便于不启动 checkcode 服务时进行日常测试，恢复时启用以下代码
+//        String checkCode = authParamsDto.getCheckcode();
+//        String checkCodeKey = authParamsDto.getCheckcodekey();
+//        if(StringUtils.isEmpty(checkCode) || StringUtils.isEmpty(checkCodeKey)){
+//            throw new RuntimeException("请输入验证码");
+//        }
+//        Boolean verify = checkCodeClient.verify(checkCodeKey, checkCode);
+//        if (verify == null || !verify){
+//            throw new RuntimeException("验证码输入错误");
+//        }
 
         XcUser user = xcUserMapper.selectOne(new LambdaQueryWrapper<XcUser>().eq(XcUser::getUsername, userName));
         if(user == null){

@@ -95,4 +95,11 @@ public interface MediaFileService {
 
     MediaFiles addMediaFilesToDb(Long companyId, String fileMd5,
                                  UploadFileParamsDTO uploadFileParamsDto, String bucket, String objectName);
+
+    /**
+     * 删除指定的媒资文件
+     * @param mediaFileId 媒资文件ID(数据库主键，即文件MD5)
+     * @return 删除结果
+     */
+    RestResponse deleteMediaFile(String mediaFileId);
 }
