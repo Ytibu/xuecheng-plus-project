@@ -53,7 +53,12 @@ public class BigFilesController {
     public RestResponse mergeChunks(@RequestParam("fileMd5") String fileMd5,
         @RequestParam("fileName") String fileName, @RequestParam("chunkTotal") int chunkTotal) {
 
-        Long companyId = 1232141425L;
+
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        if (user == null) {
+            throw new RuntimeException("未获取到用户身份，请重新登录"); // 或走统一异常/401
+        }
+        Long companyId = StringUtils.isNotEmpty(user.getCompanyId()) ? Long.parseLong(user.getCompanyId()) : null;
         UploadFileParamsDTO uploadFileParamsDTO = new UploadFileParamsDTO();
         uploadFileParamsDTO.setFilename(fileName);
         uploadFileParamsDTO.setTags("测试视频");

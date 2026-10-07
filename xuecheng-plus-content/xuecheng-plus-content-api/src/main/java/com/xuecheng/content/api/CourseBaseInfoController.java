@@ -33,13 +33,11 @@ public class CourseBaseInfoController {
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody(required=false) QueryCourseParamsDto queryCourseParamsDto)
     {
         log.warn("要查询课程的课程信息:{}", queryCourseParamsDto);
-
         SecurityUtil.XcUser user = SecurityUtil.getUser();
-        Long companyId = null;
-        if (StringUtils.isNotEmpty(user.getCompanyId())) {
-            companyId = Long.parseLong(user.getCompanyId());
+        if (user == null) {
+            throw new RuntimeException("未获取到用户身份，请重新登录"); // 或走统一异常/401
         }
-
+        Long companyId = StringUtils.isNotEmpty(user.getCompanyId()) ? Long.parseLong(user.getCompanyId()) : null;
         return courseBaseInfoService.QueryCourseBaseList(companyId, pageParams, queryCourseParamsDto);
     }
 
@@ -48,7 +46,12 @@ public class CourseBaseInfoController {
     public CourseBaseInfoDto createCourseBase(@RequestBody @Validated(ValidationGroups.Insert.class) AddCourseDto addCourseDto)
     {
         log.warn("机构新增课程信息:{}", addCourseDto);
-        return courseBaseInfoService.createCourseBase(1232141425L, addCourseDto);
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        if (user == null) {
+            throw new RuntimeException("未获取到用户身份，请重新登录"); // 或走统一异常/401
+        }
+        Long companyId = StringUtils.isNotEmpty(user.getCompanyId()) ? Long.parseLong(user.getCompanyId()) : null;
+        return courseBaseInfoService.createCourseBase(companyId, addCourseDto);
     }
 
 
@@ -70,7 +73,12 @@ public class CourseBaseInfoController {
     public CourseBaseInfoDto modifyCourseBaseInfo(@RequestBody @Validated(ValidationGroups.Update.class) EditCourseDto editCourseDto)
     {
         log.warn("要修改的课程信息:{}", editCourseDto);
-        return courseBaseInfoService.updateCourseBase(1232141425L, editCourseDto);
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        if (user == null) {
+            throw new RuntimeException("未获取到用户身份，请重新登录"); // 或走统一异常/401
+        }
+        Long companyId = StringUtils.isNotEmpty(user.getCompanyId()) ? Long.parseLong(user.getCompanyId()) : null;
+        return courseBaseInfoService.updateCourseBase(companyId, editCourseDto);
     }
 
 }

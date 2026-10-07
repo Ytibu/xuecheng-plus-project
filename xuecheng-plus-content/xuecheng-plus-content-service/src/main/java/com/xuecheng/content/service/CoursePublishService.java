@@ -36,6 +36,14 @@ public interface CoursePublishService {
     CoursePublish getCoursePublish(Long courseId);
 
     /**
+     * 查询课程发布信息(走redis缓存)
+     * @param courseId 课程Id
+     * @return 课程发布信息
+     */
+    CoursePublish getCoursePublishCache(Long courseId);
+
+
+    /**
      * 生成课程静态页面
      * @param courseId 课程Id
      * @return 生成的页面文件
@@ -50,5 +58,10 @@ public interface CoursePublishService {
     void  uploadCourseHtml(Long courseId,File file);
 
 
-    CoursePreviewDto getCourseInfo(Long courseId);
+    /**
+     * 用户预览课程信息
+     * @param courseId 课程ID
+     * @return 课程预览信息
+     */
+    CoursePreviewDto getCoursePreview(Long courseId);
 }

@@ -34,7 +34,11 @@ public class MediaFilesController {
     @PostMapping("/files")
     public PageResult<MediaFiles> list(PageParams pageParams, @RequestBody QueryMediaParamsDto queryMediaParamsDto)
     {
-        Long companyId = 1232141425L;
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        if (user == null) {
+            throw new RuntimeException("未获取到用户身份，请重新登录"); // 或走统一异常/401
+        }
+        Long companyId = StringUtils.isNotEmpty(user.getCompanyId()) ? Long.parseLong(user.getCompanyId()) : null;
         return mediaFileService.queryMediaFiles(companyId,pageParams,queryMediaParamsDto);
     }
 
@@ -58,7 +62,12 @@ public class MediaFilesController {
         uploadFileParamsDTO.setFileType("001001");
         File tempFile = File.createTempFile("minio", ".temp");
         fileData.transferTo(tempFile);
-        Long companyId = 1232141425L;
+
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        if (user == null) {
+            throw new RuntimeException("未获取到用户身份，请重新登录"); // 或走统一异常/401
+        }
+        Long companyId = StringUtils.isNotEmpty(user.getCompanyId()) ? Long.parseLong(user.getCompanyId()) : null;
         String localFilePath = tempFile.getAbsolutePath();
 
         // 上传图片
