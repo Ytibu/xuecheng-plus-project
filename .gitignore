@@ -31,3 +31,4 @@ logs/
 ### VS Code ###
 .vscode/
 doc/
+log/
