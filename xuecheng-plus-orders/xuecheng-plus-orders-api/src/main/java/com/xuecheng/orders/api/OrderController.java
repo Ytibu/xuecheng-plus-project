@@ -116,14 +116,14 @@ public class OrderController {
             String outTradeNo = new String(httpRequest.getParameter("out_trade_no").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             String tradeNo = new String(httpRequest.getParameter("trade_no").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             String tradeStatus = new String(httpRequest.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-            String totalMount = new String(httpRequest.getParameter("total_mount").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            String totalAmount = new String(httpRequest.getParameter("total_amount").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             if (tradeStatus.equals("TRADE_SUCCESS")) {
-                System.out.println(tradeStatus);
+                log.info("支付宝回调 trade_status={}, out_trade_no={}", tradeStatus, outTradeNo);
                 PayStatusDto payStatusDto = new PayStatusDto();
                 payStatusDto.setTrade_status(tradeStatus);
                 payStatusDto.setTrade_no(tradeNo);
                 payStatusDto.setOut_trade_no(outTradeNo);
-                payStatusDto.setTotal_amount(totalMount);
+                payStatusDto.setTotal_amount(totalAmount);
                 payStatusDto.setApp_id(APP_ID);
                 orderService.saveAliPayStatus(payStatusDto);
             }

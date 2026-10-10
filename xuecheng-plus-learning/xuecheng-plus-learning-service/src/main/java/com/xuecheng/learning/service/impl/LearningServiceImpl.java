@@ -31,23 +31,24 @@ public class LearningServiceImpl implements LearningService {
             return RestResponse.validfail("课程不存在");
         }
 
-        if(StringUtils.isEmpty(userId)){
-            XcCourseTablesDto courseTablesDto = myCourseTablesService.getLearningStatus(userId, courseId);
-            String learnStatus = courseTablesDto.getLearnStatus();
-            if("702002".equals(learnStatus)){
-                return RestResponse.validfail("无法学习，没有选课或选课后未支付");
-            }else if("702003".equals(learnStatus)){
-                return RestResponse.validfail("课程过期，需要申请续期或重新支付");
-            }else {
-                return mediaServiceClient.getPlayUrlByMediaId(mediaId);
-            }
-
-        }
-
-        String charge = coursepublish.getCharge();
-        if("201000".equals(charge)){
+        // 免费课程直接放行
+        if("201000".equals(coursepublish.getCharge())){
             return mediaServiceClient.getPlayUrlByMediaId(mediaId);
         }
-        return RestResponse.validfail("该课程需要购买");
+
+        // 收费课程：未登录不可学
+        if(StringUtils.isEmpty(userId)){
+            return RestResponse.validfail("该课程需要购买");
+        }
+
+        // 收费课程：已登录需校验学习资格（已购且未过期才可学）
+        XcCourseTablesDto courseTablesDto = myCourseTablesService.getLearningStatus(userId, courseId);
+        String learnStatus = courseTablesDto.getLearnStatus();
+        if("702002".equals(learnStatus)){
+            return RestResponse.validfail("无法学习，没有选课或选课后未支付");
+        }else if("702003".equals(learnStatus)){
+            return RestResponse.validfail("课程过期，需要申请续期或重新支付");
+        }
+        return mediaServiceClient.getPlayUrlByMediaId(mediaId);
     }
 }

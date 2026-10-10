@@ -99,7 +99,10 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         if(auditStatus.equals("202003")){
             XueChengPlusException.cast("课程已经提交");
         }
-        // TODO 机构校验·companyId
+        // 机构归属校验：只能提交本机构的课程
+        if(companyId == null || !companyId.equals(courseBaseInfo.getCompanyId())){
+            XueChengPlusException.cast("本课程不属于当前机构，无法提交审核");
+        }
         String pic = courseBaseInfo.getPic();
         if(StringUtils.isEmpty(pic)){
             XueChengPlusException.cast("上传课程宣传图");
